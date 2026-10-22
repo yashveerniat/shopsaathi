@@ -1,46 +1,31 @@
-import { collection, addDoc, getDocs, query, where, doc, updateDoc } from "firebase/firestore";
-import { db } from "./firebase";
+import { api } from "./api";
 
-// Worker applies to a job
-export async function applyToJob({ jobId, jobTitle, workerId, ownerId, workerSnapshot }) {
-  const docRef = await addDoc(collection(db, "applications"), {
-    jobId,
-    jobTitle,
-    workerId,
-    ownerId,
-    workerSnapshot,
-    status: "pending",
-    appliedAt: new Date().toISOString(),
-  });
-  return docRef.id;
+// _id ko id mein, createdAt ko appliedAt mein badlo
+const mapApp = (a) => ({ ...a, id: a._id, appliedAt: a.createdAt });
+
+export async function applyToJob({ jobId }) {
+  const app = await api("/applications", { method: "POST", body: { jobId } });
+  return app._id;
 }
 
-// Check if this worker already applied to this job (prevents duplicate applies)
-export async function hasAlreadyApplied(jobId, workerId) {
-  const q = query(
-    collection(db, "applications"),
-    where("jobId", "==", jobId),
-    where("workerId", "==", workerId)
-  );
-  const snap = await getDocs(q);
-  return !snap.empty;
+export async function hasAlreadyApplied(jobId) {
+  const apps = await api("/applications/worker");
+  return apps.some((a) => a.job === jobId);
 }
 
-// Get all applications a worker has submitted
-export async function getApplicationsForWorker(workerId) {
-  const q = query(collection(db, "applications"), where("workerId", "==", workerId));
-  const snap = await getDocs(q);
-  return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+export async function getApplicationsForWorker() {
+  const apps = await api("/applications/worker");
+  return apps.map(mapApp);
 }
 
-// Get all applications an owner has received (across all their jobs)
-export async function getApplicationsForOwner(ownerId) {
-  const q = query(collection(db, "applications"), where("ownerId", "==", ownerId));
-  const snap = await getDocs(q);
-  return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+export async function getApplicationsForOwner() {
+  const apps = await api("/applications/owner");
+  return apps.map(mapApp);
 }
 
-// Owner updates an application's status (shortlisted / hired / rejected)
 export async function updateApplicationStatus(applicationId, newStatus) {
-  await updateDoc(doc(db, "applications", applicationId), { status: newStatus });
+  await api(`/applications/${applicationId}/status`, {
+    method: "PUT",
+    body: { status: newStatus },
+  });
 }

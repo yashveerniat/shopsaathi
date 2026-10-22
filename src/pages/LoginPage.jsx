@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../services/firebase";
 import { useAuth } from "../context/AuthContext";
 
 function LoginPage() {
@@ -17,10 +15,8 @@ function LoginPage() {
     setError("");
     setLoading(true);
     try {
-      const result = await login(email, password);
-      const userDoc = await getDoc(doc(db, "users", result.user.uid));
-      const role = userDoc.exists() ? userDoc.data().role : null;
-      navigate(role === "owner" ? "/owner-dashboard" : "/worker-dashboard");
+      const user = await login(email, password);
+      navigate(user.role === "owner" ? "/owner-dashboard" : "/worker-dashboard");
     } catch (err) {
       setError("Invalid email or password. Please try again.");
     }

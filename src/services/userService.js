@@ -1,13 +1,10 @@
-import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "./firebase";
+import { api } from "./api";
 
-// Fetch a user's profile document from Firestore
-export async function getUserProfile(uid) {
-  const snap = await getDoc(doc(db, "users", uid));
-  return snap.exists() ? snap.data() : null;
+// uid argument pages se aata hai, par backend token se user pehchanta hai
+export async function getUserProfile() {
+  return api("/auth/profile");
 }
 
-// Update (merge) fields into a user's profile document
 export async function updateUserProfile(uid, data) {
-  await updateDoc(doc(db, "users", uid), data);
+  return api("/auth/profile", { method: "PUT", body: data });
 }

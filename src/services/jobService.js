@@ -1,32 +1,27 @@
-import { collection, addDoc, getDocs, getDoc, doc, query, where } from "firebase/firestore";
-import { db } from "./firebase";
+import { api } from "./api";
 
-// Create a new job posting
+// MongoDB ka _id aur owner, frontend ke id aur ownerId mein badlo
+const mapJob = (j) => ({ ...j, id: j._id, ownerId: j.owner });
+
 export async function createJob(jobData) {
-  const docRef = await addDoc(collection(db, "jobs"), {
-    ...jobData,
-    status: "open",
-    createdAt: new Date().toISOString(),
-  });
-  return docRef.id;
+  const job = await api("/jobs", { method: "POST", body: jobData });
+  return job._id;
 }
 
-// Get all jobs posted by a specific owner
-export async function getJobsByOwner(ownerId) {
-  const q = query(collection(db, "jobs"), where("ownerId", "==", ownerId));
-  const snap = await getDocs(q);
-  return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+export async function getJobsByOwner() {
+  const jobs = await api("/jobs/my");
+  return jobs.map(mapJob);
 }
 
-// Get all open jobs (for workers to browse later)
 export async function getAllOpenJobs() {
-  const q = query(collection(db, "jobs"), where("status", "==", "open"));
-  const snap = await getDocs(q);
-  return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  const jobs = await api("/jobs");
+  return jobs.map(mapJob);
 }
 
-// Get a single job by its ID (for the Job Details page)
 export async function getJobById(jobId) {
-  const snap = await getDoc(doc(db, "jobs", jobId));
-  return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+  try {
+    return mapJob(await api(`/jobs/${jobId}`));
+  } catch {
+    return null;
+  }
 }
