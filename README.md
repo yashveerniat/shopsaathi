@@ -1,16 +1,43 @@
-# React + Vite
+# ShopSaathi (Frontend)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Hyperlocal job-matching platform for small Indian businesses. Shop owners post jobs, nearby workers browse and apply, owners shortlist or hire and contact workers on WhatsApp.
 
-Currently, two official plugins are available:
+- **Live site:** https://shopsaathi-e778c.web.app
+- **Backend repo:** https://github.com/yashveerniat/shopsaathi-backend
+- **Backend API:** https://TUMHARA-RENDER-URL.onrender.com
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Architecture
 
-## React Compiler
+```
+React (Vite)  ->  Express REST API (Render)  ->  MongoDB Atlas
+   Firebase Hosting      JWT auth, bcrypt
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the ESLint configuration
+- **Frontend:** React, Vite, React Router, Context API
+- **Backend:** Node.js, Express, Mongoose, JWT, bcryptjs
+- **Database:** MongoDB Atlas
+- **Hosting:** Firebase Hosting (frontend), Render (backend)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Features
+
+- Role-based accounts (owner / worker) with JWT login
+- Protected routes by role
+- Post jobs, browse and search jobs, apply once per job
+- Owner dashboard with applications; shortlist, hire or reject
+- Worker dashboard with application status tracking
+- WhatsApp contact link for each applicant
+
+## Run locally
+
+```bash
+npm install
+npm run dev
+```
+
+Create `.env.local` if you want to use a local backend:
+
+```
+VITE_API_URL=http://localhost:5000/api
+```
